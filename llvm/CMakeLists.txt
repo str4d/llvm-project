@@ -294,6 +294,7 @@ set(LLVM_ALL_TARGETS
   ARM
   AVR
   BPF
+  GBZ80
   Hexagon
   Lanai
   Mips
