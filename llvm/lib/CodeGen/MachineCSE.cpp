@@ -195,7 +195,7 @@ bool MachineCSE::PerformTrivialCopyPropagation(MachineInstr *MI,
     // class given a super-reg class and subreg index.
     if (DefMI->getOperand(1).getSubReg())
       continue;
-    if (!MRI->constrainRegAttrs(SrcReg, Reg))
+    if (!MRI->constrainRegAttrs(SrcReg, Reg, 2))
       continue;
     LLVM_DEBUG(dbgs() << "Coalescing: " << *DefMI);
     LLVM_DEBUG(dbgs() << "***     to: " << *MI);
