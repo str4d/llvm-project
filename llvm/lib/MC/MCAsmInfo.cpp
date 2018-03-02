@@ -41,6 +41,7 @@ MCAsmInfo::MCAsmInfo() {
   PrivateGlobalPrefix = "L";
   PrivateLabelPrefix = PrivateGlobalPrefix;
   LinkerPrivateGlobalPrefix = "";
+  HexadecimalPrefix = "0x";
   InlineAsmStart = "APP";
   InlineAsmEnd = "NO_APP";
   Code16Directive = ".code16";
