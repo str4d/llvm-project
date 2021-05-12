@@ -1,3 +1,5 @@
+add_llvm_component_group(GBZ80)
+
 set(LLVM_TARGET_DEFINITIONS GBZ80.td)
 
 tablegen(LLVM GBZ80GenRegisterInfo.inc -gen-register-info)
@@ -31,6 +33,21 @@ add_llvm_target(GBZ80CodeGen
 
   DEPENDS
   intrinsics_gen
+
+  LINK_COMPONENTS
+  AsmPrinter
+  CodeGen
+  Core
+  MC
+  GBZ80AsmPrinter
+  GBZ80Desc
+  GBZ80Info
+  SelectionDAG
+  Support
+  Target
+
+  ADD_TO_COMPONENT
+  GBZ80
 )
 
 add_subdirectory(InstPrinter)

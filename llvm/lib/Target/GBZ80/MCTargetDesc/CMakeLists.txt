@@ -1,4 +1,4 @@
-add_llvm_library(LLVMGBZ80Desc
+add_llvm_component_library(LLVMGBZ80Desc
 #  GBZ80AsmBackend.cpp
   GBZ80ELFObjectWriter.cpp
   GBZ80ELFStreamer.cpp
@@ -7,6 +7,15 @@ add_llvm_library(LLVMGBZ80Desc
   GBZ80MCExpr.cpp
   GBZ80MCTargetDesc.cpp
   GBZ80TargetStreamer.cpp
+
+  LINK_COMPONENTS
+  MC
+  GBZ80AsmPrinter
+  GBZ80Info
+  Support
+
+  ADD_TO_COMPONENT
+  GBZ80
 )
 
 add_dependencies(LLVMGBZ80Desc GBZ80CommonTableGen)
