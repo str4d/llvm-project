@@ -145,8 +145,7 @@ bool GBZ80FrameLowering::hasFP(const MachineFunction &MF) const {
 
 bool GBZ80FrameLowering::spillCalleeSavedRegisters(
     MachineBasicBlock &MBB, MachineBasicBlock::iterator MI,
-    const std::vector<CalleeSavedInfo> &CSI,
-    const TargetRegisterInfo *TRI) const {
+    ArrayRef<CalleeSavedInfo> CSI, const TargetRegisterInfo *TRI) const {
   if (CSI.empty()) {
     return false;
   }
@@ -186,8 +185,7 @@ bool GBZ80FrameLowering::spillCalleeSavedRegisters(
 
 bool GBZ80FrameLowering::restoreCalleeSavedRegisters(
     MachineBasicBlock &MBB, MachineBasicBlock::iterator MI,
-    std::vector<CalleeSavedInfo> &CSI,
-    const TargetRegisterInfo *TRI) const {
+    MutableArrayRef<CalleeSavedInfo> CSI, const TargetRegisterInfo *TRI) const {
   if (CSI.empty()) {
     return false;
   }
