@@ -14,7 +14,7 @@
 #include "GBZ80.h"
 #include "GBZ80MCInstLower.h"
 #include "GBZ80Subtarget.h"
-#include "InstPrinter/GBZ80InstPrinter.h"
+#include "MCTargetDesc/GBZ80InstPrinter.h"
 
 #include "llvm/CodeGen/AsmPrinter.h"
 #include "llvm/CodeGen/MachineFunction.h"

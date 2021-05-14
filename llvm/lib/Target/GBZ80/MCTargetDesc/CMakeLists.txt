@@ -2,6 +2,7 @@ add_llvm_component_library(LLVMGBZ80Desc
 #  GBZ80AsmBackend.cpp
   GBZ80ELFObjectWriter.cpp
   GBZ80ELFStreamer.cpp
+  GBZ80InstPrinter.cpp
   GBZ80MCAsmInfo.cpp
   GBZ80MCCodeEmitter.cpp
   GBZ80MCExpr.cpp
@@ -10,7 +11,6 @@ add_llvm_component_library(LLVMGBZ80Desc
 
   LINK_COMPONENTS
   MC
-  GBZ80AsmPrinter
   GBZ80Info
   Support
 

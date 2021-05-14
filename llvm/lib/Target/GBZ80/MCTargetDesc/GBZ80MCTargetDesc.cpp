@@ -10,11 +10,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "GBZ80InstPrinter.h"
 #include "GBZ80MCTargetDesc.h"
 #include "GBZ80ELFStreamer.h"
 #include "GBZ80MCAsmInfo.h"
 #include "GBZ80TargetStreamer.h"
-#include "InstPrinter/GBZ80InstPrinter.h"
 
 #include "llvm/MC/MCELFStreamer.h"
 #include "llvm/MC/MCInstrInfo.h"

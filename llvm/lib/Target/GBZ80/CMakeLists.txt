@@ -39,7 +39,6 @@ add_llvm_target(GBZ80CodeGen
   CodeGen
   Core
   MC
-  GBZ80AsmPrinter
   GBZ80Desc
   GBZ80Info
   SelectionDAG
@@ -50,6 +49,5 @@ add_llvm_target(GBZ80CodeGen
   GBZ80
 )
 
-add_subdirectory(InstPrinter)
 add_subdirectory(MCTargetDesc)
 add_subdirectory(TargetInfo)
