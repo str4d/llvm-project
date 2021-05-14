@@ -35,7 +35,7 @@ namespace llvm {
 // area is located one byte lower)
 // TransAlignment is 1
 GBZ80FrameLowering::GBZ80FrameLowering()
-    : TargetFrameLowering(TargetFrameLowering::StackGrowsDown, 1, -1, 1, false) {}
+    : TargetFrameLowering(TargetFrameLowering::StackGrowsDown, Align(1), -1, Align(1), false) {}
 
 bool GBZ80FrameLowering::canSimplifyCallFramePseudos(
     const MachineFunction &MF) const {

@@ -233,7 +233,7 @@ GBZ80TargetLowering::GBZ80TargetLowering(GBZ80TargetMachine &tm)
   setLibcallName(RTLIB::SIN_F32, "sin");
   setLibcallName(RTLIB::COS_F32, "cos");
 
-  setMinFunctionAlignment(1);
+  setMinFunctionAlignment(Align(2));
   setMinimumJumpTableEntries(INT_MAX);
 }
 
