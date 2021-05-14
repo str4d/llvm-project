@@ -16,7 +16,7 @@ Target &getTheGBZ80Target() {
 }
 
 extern "C" void LLVMInitializeGBZ80TargetInfo() {
-  llvm::RegisterTarget<llvm::Triple::gbz80> X(llvm::getTheGBZ80Target(), "GBZ80",
+  llvm::RegisterTarget<llvm::Triple::gbz80> X(llvm::getTheGBZ80Target(), "gbz80",
                                             "Game Boy Z80 (LR35902)", "GBZ80");
 }
 
