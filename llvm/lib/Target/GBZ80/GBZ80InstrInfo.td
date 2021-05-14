@@ -559,17 +559,17 @@ def MUL8 : Pseudo<(outs R8:$dst), (ins R8:$src1, R8:$src2),
 foreach Name = ["INC", "DEC"] in {
   // 8-bit
   let Defs = [RF], Constraints = "$dst = $src" in
-  def Name##_r : I8<(outs R8:$dst), (ins R8:$src),
+  def Name#_r : I8<(outs R8:$dst), (ins R8:$src),
     !strconcat(Name, "\t$src"),
     []>;
   let Defs = [RF], mayLoad = 1, mayStore = 1 in
-  def Name##_HL : I8<(outs), (ins R16_HL:$ptr),
+  def Name#_HL : I8<(outs), (ins R16_HL:$ptr),
     !strconcat(Name, "\t[$ptr]"),
     []>;
 
   // 16-bit
   let Constraints = "$dst = $src" in
-  def Name##_ss : I8<(outs R16_DD:$dst), (ins R16_DD:$src),
+  def Name#_ss : I8<(outs R16_DD:$dst), (ins R16_DD:$src),
     !strconcat(Name, "\t$src"),
     []>;
 }
