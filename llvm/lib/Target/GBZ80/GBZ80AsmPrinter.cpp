@@ -47,31 +47,26 @@ public:
 
   StringRef getPassName() const override { return "GBZ80 Assembly Printer"; }
 
-  void printOperand(const MachineInstr *MI, unsigned OpNo, raw_ostream &O,
-                    const char *Modifier = 0);
+  void printOperand(const MachineInstr *MI, unsigned OpNo, raw_ostream &O);
 
   bool PrintAsmOperand(const MachineInstr *MI, unsigned OpNum,
-                       unsigned AsmVariant, const char *ExtraCode,
-                       raw_ostream &O) override;
+                       const char *ExtraCode, raw_ostream &O) override;
 
   bool PrintAsmMemoryOperand(const MachineInstr *MI, unsigned OpNum,
-                             unsigned AsmVariant, const char *ExtraCode,
-                             raw_ostream &O) override;
+                             const char *ExtraCode, raw_ostream &O) override;
 
-  void EmitFunctionBodyStart() override;
+  void emitFunctionBodyStart() override;
 
-  void EmitInstruction(const MachineInstr *MI) override;
+  void emitInstruction(const MachineInstr *MI) override;
 
-  void EmitLinkage(const GlobalValue *GV, MCSymbol *GVSym) const;
+  void emitLinkage(const GlobalValue *GV, MCSymbol *GVSym) const;
 
 private:
   const MCRegisterInfo &MRI;
-
-  void EmitFunctionHeader() override;
 };
 
 void GBZ80AsmPrinter::printOperand(const MachineInstr *MI, unsigned OpNo,
-                                 raw_ostream &O, const char *Modifier) {
+                                 raw_ostream &O) {
   const MachineOperand &MO = MI->getOperand(OpNo);
 
   switch (MO.getType()) {
@@ -96,11 +91,10 @@ void GBZ80AsmPrinter::printOperand(const MachineInstr *MI, unsigned OpNo,
 }
 
 bool GBZ80AsmPrinter::PrintAsmOperand(const MachineInstr *MI, unsigned OpNum,
-                                    unsigned AsmVariant, const char *ExtraCode,
-                                    raw_ostream &O) {
+                                    const char *ExtraCode, raw_ostream &O) {
   // Default asm printer can only deal with some extra codes,
   // so try it first.
-  bool Error = AsmPrinter::PrintAsmOperand(MI, OpNum, AsmVariant, ExtraCode, O);
+  bool Error = AsmPrinter::PrintAsmOperand(MI, OpNum, ExtraCode, O);
   if (Error)
     printOperand(MI, OpNum, O);
 
@@ -108,8 +102,7 @@ bool GBZ80AsmPrinter::PrintAsmOperand(const MachineInstr *MI, unsigned OpNum,
 }
 
 bool GBZ80AsmPrinter::PrintAsmMemoryOperand(const MachineInstr *MI,
-                                          unsigned OpNum, unsigned AsmVariant,
-                                          const char *ExtraCode,
+                                          unsigned OpNum, const char *ExtraCode,
                                           raw_ostream &O) {
 #if 0
   if (ExtraCode && ExtraCode[0]) {
@@ -144,7 +137,7 @@ bool GBZ80AsmPrinter::PrintAsmMemoryOperand(const MachineInstr *MI,
   return false;
 }
 
-void GBZ80AsmPrinter::EmitFunctionBodyStart() {
+void GBZ80AsmPrinter::emitFunctionBodyStart() {
   const MachineRegisterInfo &MRI = MF->getRegInfo();
 
   SmallString<128> C;
@@ -172,7 +165,7 @@ void GBZ80AsmPrinter::EmitFunctionBodyStart() {
   OutStreamer->emitRawComment(C, false);
 }
 
-void GBZ80AsmPrinter::EmitInstruction(const MachineInstr *MI) {
+void GBZ80AsmPrinter::emitInstruction(const MachineInstr *MI) {
   GBZ80MCInstLower MCInstLowering(OutContext, *this);
 
   MCInst I;
@@ -180,12 +173,12 @@ void GBZ80AsmPrinter::EmitInstruction(const MachineInstr *MI) {
   EmitToStreamer(*OutStreamer, I);
 }
 
-void GBZ80AsmPrinter::EmitLinkage(const GlobalValue *GV,
+void GBZ80AsmPrinter::emitLinkage(const GlobalValue *GV,
     MCSymbol *GVSym) const {
   GlobalValue::LinkageTypes Linkage = GV->getLinkage();
   switch (Linkage) {
   case GlobalValue::ExternalLinkage:
-    OutStreamer->EmitSymbolAttribute(GVSym, MCSA_Global);
+    OutStreamer->emitSymbolAttribute(GVSym, MCSA_Global);
     break;
   case GlobalValue::PrivateLinkage:
   case GlobalValue::InternalLinkage:
@@ -202,66 +195,6 @@ void GBZ80AsmPrinter::EmitLinkage(const GlobalValue *GV,
   case GlobalValue::ExternalWeakLinkage:
     llvm_unreachable("Should never emit this");
   }
-}
-
-void GBZ80AsmPrinter::EmitFunctionHeader() {
-  const Function *F = &MF->getFunction();
-
-  if (isVerbose())
-    OutStreamer->GetCommentOS()
-    << "-- Begin function "
-    << GlobalValue::dropLLVMManglingEscape(F->getName()) << '\n';
-
-  // Print out constants referenced by the function
-  EmitConstantPool();
-
-  // Print the 'header' of function.
-  OutStreamer->SwitchSection(getObjFileLowering().SectionForGlobal(F, TM));
-
-  EmitLinkage(F, CurrentFnSym);
-
-  if (isVerbose()) {
-    F->printAsOperand(OutStreamer->GetCommentOS(),
-      /*PrintType=*/false, F->getParent());
-    OutStreamer->GetCommentOS() << '\n';
-  }
-
-  // Emit the prefix data.
-  if (F->hasPrefixData()) {
-    if (MAI->hasSubsectionsViaSymbols()) {
-      // Preserving prefix data on platforms which use subsections-via-symbols
-      // is a bit tricky. Here we introduce a symbol for the prefix data
-      // and use the .alt_entry attribute to mark the function's real entry point
-      // as an alternative entry point to the prefix-data symbol.
-      MCSymbol *PrefixSym = OutContext.createLinkerPrivateTempSymbol();
-      OutStreamer->EmitLabel(PrefixSym);
-
-      EmitGlobalConstant(F->getParent()->getDataLayout(), F->getPrefixData());
-
-      // Emit an .alt_entry directive for the actual function symbol.
-      OutStreamer->EmitSymbolAttribute(CurrentFnSym, MCSA_AltEntry);
-    } else {
-      EmitGlobalConstant(F->getParent()->getDataLayout(), F->getPrefixData());
-    }
-  }
-
-  // Emit the CurrentFnSym.  This is a virtual function to allow targets to
-  // do their wild and crazy things as required.
-  EmitFunctionEntryLabel();
-
-  // If the function had address-taken blocks that got deleted, then we have
-  // references to the dangling symbols.  Emit them at the start of the function
-  // so that we don't get references to undefined symbols.
-  std::vector<MCSymbol*> DeadBlockSyms;
-  MMI->takeDeletedSymbolsForFunction(F, DeadBlockSyms);
-  for (unsigned i = 0, e = DeadBlockSyms.size(); i != e; ++i) {
-    OutStreamer->AddComment("Address taken block that was later removed");
-    OutStreamer->EmitLabel(DeadBlockSyms[i]);
-  }
-
-  // Emit the prologue data.
-  if (F->hasPrologueData())
-    EmitGlobalConstant(F->getParent()->getDataLayout(), F->getPrologueData());
 }
 
 } // end of namespace llvm
