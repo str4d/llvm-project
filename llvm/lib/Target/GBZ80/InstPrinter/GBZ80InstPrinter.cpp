@@ -33,14 +33,15 @@ namespace llvm {
 #define PRINT_ALIAS_INSTR
 #include "GBZ80GenAsmWriter.inc"
 
-void GBZ80InstPrinter::printInst(const MCInst *MI, raw_ostream &O,
-                               StringRef Annot, const MCSubtargetInfo &STI) {
+void GBZ80InstPrinter::printInst(const MCInst *MI, uint64_t Address,
+                               StringRef Annot, const MCSubtargetInfo &STI,
+                               raw_ostream &O) {
   unsigned Opcode = MI->getOpcode();
 
   switch (Opcode) {
   default:
-    if (!printAliasInstr(MI, O))
-      printInstruction(MI, O);
+    if (!printAliasInstr(MI, Address, O))
+      printInstruction(MI, Address, O);
 
     printAnnotation(O, Annot);
     break;
