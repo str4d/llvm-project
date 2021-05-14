@@ -29,14 +29,14 @@ namespace llvm {
 
 GBZ80Subtarget::GBZ80Subtarget(const Triple &TT, const std::string &CPU,
                            const std::string &FS, GBZ80TargetMachine &TM)
-    : GBZ80GenSubtargetInfo(TT, CPU, FS), InstrInfo(), FrameLowering(),
+    : GBZ80GenSubtargetInfo(TT, CPU, /*TuneCPU*/ CPU, FS), InstrInfo(), FrameLowering(),
       TLInfo(TM), TSInfo(),
 
       // Subtarget features
       m_MBC1(false), m_MBC2(false), m_MBC3(false), m_RAM(false),
       m_Battery(false), m_RTC(false) {
   // Parse features string.
-  ParseSubtargetFeatures(CPU, FS);
+  ParseSubtargetFeatures(CPU, /*TuneCPU*/ CPU, FS);
   assert((m_MBC1 + m_MBC2 + m_MBC3) <= 1 && "Multiple MBCs?");
 }
 

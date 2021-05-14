@@ -43,7 +43,7 @@ unsigned GBZ80ELFObjectWriter::getRelocType(MCContext &Ctx,
 }
 
 std::unique_ptr<MCObjectWriter> createGBZ80ELFObjectWriter(raw_pwrite_stream &OS, uint8_t OSABI) {
-  return createELFObjectWriter(llvm::make_unique<GBZ80ELFObjectWriter>(OSABI), OS, true);
+  return createELFObjectWriter(std::make_unique<GBZ80ELFObjectWriter>(OSABI), OS, true);
 }
 
 } // end of namespace llvm

@@ -57,8 +57,8 @@ GBZ80TargetMachine::GBZ80TargetMachine(const Target &T, const Triple &TT,
           getEffectiveRelocModel(TT, RM),
           getEffectiveCodeModel(CM, JIT),
           OL),
-      SubTarget(TT, getCPU(CPU), FS, *this) {
-  this->TLOF = make_unique<GBZ80TargetObjectFile>();
+      SubTarget(TT, std::string(getCPU(CPU)), std::string(FS), *this) {
+  this->TLOF = std::make_unique<GBZ80TargetObjectFile>();
   initAsmInfo();
 }
 

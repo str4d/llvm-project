@@ -272,7 +272,7 @@ bool GBZ80InstrInfo::isUnconditionalBranch(const MachineInstr &I) const {
 }
 
 bool GBZ80InstrInfo::isReallyTriviallyReMaterializable(const MachineInstr &MI,
-  AliasAnalysis *AI) const {
+  AAResults *AI) const {
   switch (MI.getOpcode()) {
   default: return false;
   case GB::LD_r_n:

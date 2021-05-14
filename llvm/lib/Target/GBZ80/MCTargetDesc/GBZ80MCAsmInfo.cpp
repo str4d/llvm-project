@@ -16,7 +16,7 @@
 
 namespace llvm {
 
-GBZ80MCAsmInfo::GBZ80MCAsmInfo(const Triple &TT) {
+GBZ80MCAsmInfo::GBZ80MCAsmInfo(const Triple &TT, const MCTargetOptions &Options) {
   CodePointerSize = 2;
   CalleeSaveStackSlotSize = 2;
   CommentString = ";";

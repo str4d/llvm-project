@@ -22,7 +22,7 @@ class Triple;
 /// Specifies the format of GBZ80 assembly files.
 class GBZ80MCAsmInfo : public MCAsmInfo {
 public:
-  explicit GBZ80MCAsmInfo(const Triple &TT);
+  explicit GBZ80MCAsmInfo(const Triple &TT, const MCTargetOptions &Options);
 };
 
 } // end namespace llvm

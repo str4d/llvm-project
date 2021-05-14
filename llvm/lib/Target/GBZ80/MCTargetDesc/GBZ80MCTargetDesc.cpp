@@ -49,7 +49,7 @@ static MCRegisterInfo *createGBZ80MCRegisterInfo(const Triple &TT) {
 
 static MCSubtargetInfo *createGBZ80MCSubtargetInfo(const Triple &TT,
                                                  StringRef CPU, StringRef FS) {
-  return createGBZ80MCSubtargetInfoImpl(TT, CPU, FS);
+  return createGBZ80MCSubtargetInfoImpl(TT, CPU, /*TuneCPU*/ CPU, FS);
 }
 
 static MCInstPrinter *createGBZ80MCInstPrinter(const Triple &T,

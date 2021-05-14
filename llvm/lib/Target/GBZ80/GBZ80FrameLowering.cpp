@@ -44,10 +44,6 @@ bool GBZ80FrameLowering::canSimplifyCallFramePseudos(
   return false;
 }
 
-bool GBZ80FrameLowering::noFramePointerElim(const MachineFunction &MF) const {
-  return false;
-}
-
 bool GBZ80FrameLowering::hasReservedCallFrame(const MachineFunction &MF) const {
   // It might actually be interesting if this was true, but it means we might
   // have a hard time building the call sequence when we actually get there
