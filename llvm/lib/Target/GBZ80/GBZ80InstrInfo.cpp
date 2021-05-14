@@ -41,8 +41,8 @@ GBZ80InstrInfo::GBZ80InstrInfo()
 
 void GBZ80InstrInfo::copyPhysReg(MachineBasicBlock &MBB,
                                MachineBasicBlock::iterator MI,
-                               const DebugLoc &DL, unsigned DestReg,
-                               unsigned SrcReg, bool KillSrc) const {
+                               const DebugLoc &DL, MCRegister DestReg,
+                               MCRegister SrcReg, bool KillSrc) const {
   const GBZ80Subtarget &STI = MBB.getParent()->getSubtarget<GBZ80Subtarget>();
   const GBZ80RegisterInfo &TRI = *STI.getRegisterInfo();
   unsigned Opc;
@@ -114,7 +114,7 @@ unsigned GBZ80InstrInfo::isStoreToStackSlot(const MachineInstr &MI,
 
 void GBZ80InstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
                                        MachineBasicBlock::iterator MI,
-                                       unsigned SrcReg, bool isKill,
+                                       Register SrcReg, bool isKill,
                                        int FrameIndex,
                                        const TargetRegisterClass *RC,
                                        const TargetRegisterInfo *TRI) const {
@@ -152,7 +152,7 @@ void GBZ80InstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
 
 void GBZ80InstrInfo::loadRegFromStackSlot(MachineBasicBlock &MBB,
                                         MachineBasicBlock::iterator MI,
-                                        unsigned DestReg, int FrameIndex,
+                                        Register DestReg, int FrameIndex,
                                         const TargetRegisterClass *RC,
                                         const TargetRegisterInfo *TRI) const {
   DebugLoc DL;
@@ -282,7 +282,7 @@ bool GBZ80InstrInfo::isReallyTriviallyReMaterializable(const MachineInstr &MI,
 }
 
 void GBZ80InstrInfo::reMaterialize(MachineBasicBlock &MBB,
-  MachineBasicBlock::iterator I, unsigned DestReg,
+  MachineBasicBlock::iterator I, Register DestReg,
   unsigned SubIdx, const MachineInstr &Orig,
   const TargetRegisterInfo &TRI) const {
   // TODO: This will likely break if we remat things that set flags.

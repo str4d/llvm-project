@@ -83,8 +83,8 @@ bool GBZ80PreRA::widenConstrainedRegClasses() {
         continue;
       if (!MII->getOperand(0).isReg() || !MII->getOperand(0).isDef())
         continue;
-      unsigned DefReg = MII->getOperand(0).getReg();
-      if (!TRI->isVirtualRegister(DefReg))
+      Register DefReg = MII->getOperand(0).getReg();
+      if (!DefReg.isVirtual())
         continue;
       const TargetRegisterClass *DefRC = MRI->getRegClass(DefReg);
       const TargetRegisterClass *NewRC = TRI->getCrossCopyRegClass(DefRC);
@@ -105,13 +105,13 @@ bool GBZ80PreRA::widenConstrainedRegClasses() {
       // XXX: What if the orig is a Pair with subreg? Could it get messy?
       // FIXME: Is there a benefit to skipping the copy if all uses are not
       // also regclass-constrained?
-      unsigned NewReg = MRI->createVirtualRegister(NewRC);
+      Register NewReg = MRI->createVirtualRegister(NewRC);
       LLVM_DEBUG(
         dbgs() << "Widening def of:\n";
         MII->dump();
         if (SafeToReassignDef)
           dbgs() << "Old def is updated to %vreg"
-                 << TRI->virtReg2Index(NewReg) << "\n";
+                 << NewReg.virtRegIndex() << "\n";
         dbgs() << "Updating uses:\n";);
       if (SafeToReassignDef)
         MII->getOperand(0).setReg(NewReg);

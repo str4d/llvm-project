@@ -141,7 +141,7 @@ void GBZ80RegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   MI.getOperand(FIOperandNum).ChangeToImmediate(Offset);
 }
 
-unsigned GBZ80RegisterInfo::getFrameRegister(const MachineFunction &MF) const {
+Register GBZ80RegisterInfo::getFrameRegister(const MachineFunction &MF) const {
   // The stack pointer is always the frame register.
   return GB::SP;
 }

@@ -203,7 +203,7 @@ MachineInstr *GBZ80PostRA::expand8BitArith(MachineInstr &MI,
   unsigned DstReg = MI.getOperand(0).getReg();
   bool DstIsDead = MI.getOperand(0).isDead();
   unsigned RHSIsReg = MI.getOperand(2).isReg();
-  unsigned RHSReg = RHSIsReg ? MI.getOperand(2).getReg() : 0;
+  Register RHSReg = RHSIsReg ? MI.getOperand(2).getReg() : Register();
   bool RHSIsKill = RHSIsReg ? MI.getOperand(2).isKill() : false;
   int8_t RHSImm = !RHSIsReg ? MI.getOperand(2).getImm() : 0;
   assert(RHSReg != GB::RA);
@@ -290,7 +290,7 @@ MachineInstr *GBZ80PostRA::expandPseudo(MachineInstr &MI) {
     unsigned NewOpc = MI.getOpcode() == GB::CP8r ? GB::CP_r : GB::CP_n;
     unsigned LHSReg = MI.getOperand(0).getReg();
     unsigned RHSIsReg = MI.getOperand(1).isReg();
-    unsigned RHSReg = RHSIsReg ? MI.getOperand(1).getReg() : 0;
+    Register RHSReg = RHSIsReg ? MI.getOperand(1).getReg() : Register();
     bool RHSIsKill = RHSIsReg ? MI.getOperand(1).isKill() : false;
     int8_t RHSImm = !RHSIsReg ? MI.getOperand(1).getImm() : 0;
 

@@ -67,7 +67,7 @@ MachineInstr *GBZ80PostISel::expandSimple16(MachineInstr &MI, unsigned LoOpc,
   unsigned Dst16 = MI.getOperand(0).getReg();
   unsigned LHS16 = MI.getOperand(1).getReg();
   bool RHSIsReg = MI.getOperand(2).isReg();
-  unsigned RHS16 = RHSIsReg ? MI.getOperand(2).getReg() : 0;
+  unsigned RHS16 = RHSIsReg ? MI.getOperand(2).getReg() : Register();
   const TargetRegisterClass *RHSClass = !RHSIsReg ? nullptr :
     TII->getRegClass(TII->get(LoOpc), 2, TRI, *MI.getMF());
   int8_t ImmLo = !RHSIsReg ? (int8_t)MI.getOperand(2).getImm() : 0;
@@ -466,9 +466,9 @@ bool GBZ80PostISel::optimizeCP() {
 struct Branch16Info {
   MachineInstr *Instr;
 
-  unsigned LHSReg;
+  Register LHSReg;
   int16_t LHSImm;
-  unsigned RHSReg;
+  Register RHSReg;
   int16_t RHSImm;
 
   ISD::CondCode CC;
@@ -478,7 +478,7 @@ struct Branch16Info {
 
 
 
-  Branch16Info(MachineInstr *I, unsigned LHS, unsigned RHS,
+  Branch16Info(MachineInstr *I, Register LHS, Register RHS,
                ISD::CondCode CC, MachineBasicBlock *T, MachineBasicBlock *F) {
     this->Instr = I;
     this->CC = CC;
@@ -487,7 +487,7 @@ struct Branch16Info {
     initialize(LHS, RHS);
   }
 
-  void initialize(unsigned LHS, unsigned RHS) {
+  void initialize(Register LHS, Register RHS) {
     MachineRegisterInfo &MRI = True->getParent()->getRegInfo();
 
     LHSReg = LHS;
@@ -495,14 +495,14 @@ struct Branch16Info {
 
     // XXX: This can probably be made smarter somehow.
     
-    if (!TargetRegisterInfo::isPhysicalRegister(LHS)) {
+    if (!LHS.isPhysical()) {
       MachineInstr *DefI = MRI.getVRegDef(LHS);
       if (DefI->getOpcode() == GB::LD_dd_nn) {
         LHSReg = 0;
         LHSImm = DefI->getOperand(1).getImm();
       }
     }
-    if (!TargetRegisterInfo::isPhysicalRegister(RHSReg)) {
+    if (!RHSReg.isPhysical()) {
       MachineInstr *DefI = MRI.getVRegDef(RHSReg);
       if (DefI->getOpcode() == GB::LD_dd_nn) {
         RHSReg = 0;
@@ -552,8 +552,8 @@ bool GBZ80PostISel::expandBranch16() {
       assert(F && "No false block?");
 
       ISD::CondCode CC = (ISD::CondCode)MII->getOperand(1).getImm();
-      unsigned LHS = MII->getOperand(2).getReg();
-      unsigned RHS = MII->getOperand(3).getReg();
+      Register LHS = MII->getOperand(2).getReg();
+      Register RHS = MII->getOperand(3).getReg();
 
       Work.emplace_back(&*MII, LHS, RHS, CC, T, F);
     }
