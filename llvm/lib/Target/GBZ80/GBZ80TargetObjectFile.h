@@ -10,7 +10,10 @@
 #define LLVM_GBZ80_TARGET_OBJECT_FILE_H
 
 #include "llvm/MC/MCAsmInfo.h"
+#include "llvm/MC/MCSection.h"
 #include "llvm/Target/TargetLoweringObjectFile.h"
+
+#include <map>
 
 namespace llvm {
 

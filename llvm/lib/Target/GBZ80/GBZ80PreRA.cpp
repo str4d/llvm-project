@@ -22,6 +22,7 @@
 #include "llvm/CodeGen/RegisterScavenging.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/CodeGen/TargetRegisterInfo.h"
+#include "llvm/InitializePasses.h"
 
 using namespace llvm;
 
