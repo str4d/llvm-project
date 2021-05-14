@@ -30,10 +30,6 @@ enum GBSectionType {
 };
 
 class GBZ80SectionData {
-  // Name of the section. If this is empty, the section is named @.
-  // TODO: Or? Should we come up with something else for this?
-  std::string SectionName;
-
   // Section type.
   GBSectionType Type;
 
@@ -51,15 +47,11 @@ class GBZ80SectionData {
   const GlobalObject *Object;
 
 public:
-  GBZ80SectionData() :
-    SectionName(), Type(GBSectionType::ST_NONE), Address(0), Bank(~0U),
-    Alignment(1) { }
-  GBZ80SectionData(StringRef N, GBSectionType T = ST_NONE, uint16_t A = 0,
+  GBZ80SectionData(GBSectionType T = ST_NONE, uint16_t A = 0,
                    unsigned B = ~0U, unsigned Align = 1,
                    const GlobalObject *O = nullptr) :
-    SectionName(N), Type(T), Address(A), Bank(B), Alignment(Align),
+    Type(T), Address(A), Bank(B), Alignment(Align),
     Object(O) {
-    assert((!N.empty() || Object) && "Named unique section?");
     // XXX: Validate? We cannot do full validation here without knowing more,
     // like the number of banks.
   }
@@ -68,14 +60,12 @@ public:
   bool hasBank() const { return Bank != ~0U; }
   bool hasAlignment() const { return Alignment > 1; }
 
-  StringRef getName() const { return SectionName; }
   GBSectionType getType() const { return Type; }
   uint16_t getAddress() const { return Address; }
   unsigned getBank() const { return Bank; }
   unsigned getAlignment() const { return Alignment; }
   const GlobalObject *getGlobalObject() const { return Object; }
 
-  void setName(StringRef N) { SectionName = N; }
   void setType(GBSectionType T) { Type = T; }
   void setAddress(uint16_t A) { Address = A; }
   void setBank(unsigned B) { Bank = B; }
@@ -90,8 +80,6 @@ public:
 inline bool operator <(const GBZ80SectionData &A, const GBZ80SectionData &B) {
   if (A.getGlobalObject() < B.getGlobalObject()) return true;
   if (A.getGlobalObject() > B.getGlobalObject()) return false;
-  if (A.getName() < B.getName()) return true;
-  if (A.getName() > B.getName()) return false;
   if (A.getType() < B.getType()) return true;
   if (A.getType() > B.getType()) return false;
   if (A.getAddress() < B.getAddress()) return true;
@@ -106,8 +94,10 @@ inline bool operator <(const GBZ80SectionData &A, const GBZ80SectionData &B) {
 class MCSectionGBZ80 : public MCSection {
 public:
 
-  MCSectionGBZ80(SectionKind K, GBZ80SectionData D, MCSymbol *Begin)
-  : MCSection(SV_GBZ80, K, Begin), Data(D) { }
+  // If Name is empty, the section is named @.
+  // TODO: Or? Should we come up with something else for this?
+  MCSectionGBZ80(StringRef Name, SectionKind K, GBZ80SectionData D, MCSymbol *Begin)
+  : MCSection(SV_GBZ80, Name, K, Begin), Data(D) { }
 
   void PrintSwitchToSection(const MCAsmInfo & MAI, const Triple & T,
     raw_ostream & OS, const MCExpr * Subsection) const override;
@@ -140,6 +130,7 @@ public:
 private:
   // Making this mutable is disgusting, but I want to avoid having to mess
   // around in MCContext and friends.
+  // TODO[str4d]: Does this need to change now that MCSection stores the section name?
   mutable std::map<GBZ80SectionData, MCSectionGBZ80 *> Sections;
 
 

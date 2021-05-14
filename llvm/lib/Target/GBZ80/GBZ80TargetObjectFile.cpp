@@ -23,11 +23,6 @@ namespace llvm {
 
 void GBZ80SectionData::getAsString(SmallVectorImpl<char> &Str) const {
   raw_svector_ostream O(Str);
-  // XXX: this will break if sectionname has quotes in it.
-  if (SectionName.empty())
-    O << "SECTION @,";
-  else
-    O << "SECTION \"" << SectionName << "\",";
   switch (Type) {
   case ST_ROM0:  O << "ROM0"; break;
   case ST_ROMX:  O << "ROMX"; break;
@@ -76,11 +71,12 @@ void GBZ80TargetObjectFile::Initialize(MCContext &Ctx, const TargetMachine &TM) 
 MCSectionGBZ80 *GBZ80TargetObjectFile::getSection(SectionKind Kind,
     StringRef N, GBSectionType T, uint16_t A, unsigned B, unsigned Align,
     const GlobalObject *GO) const {
-  GBZ80SectionData Data(N, T, A, B, Align, GO);
+  assert((!N.empty() || GO) && "Named unique section?");
+  GBZ80SectionData Data(T, A, B, Align, GO);
   if (Sections.count(Data))
     return Sections[Data];
   // Not allocated with an allocator...
-  MCSectionGBZ80 *Section = new MCSectionGBZ80(Kind, Data, nullptr);
+  MCSectionGBZ80 *Section = new MCSectionGBZ80(N, Kind, Data, nullptr);
   Sections[Data] = Section;
   return Section;
 }
@@ -133,6 +129,12 @@ GBZ80TargetObjectFile::getExplicitSectionGlobal(const GlobalObject * GO,
 }
 void MCSectionGBZ80::PrintSwitchToSection(const MCAsmInfo & MAI,
   const Triple & T, raw_ostream & OS, const MCExpr * Subsection) const {
+  // XXX: this will break if sectionname has quotes in it.
+  StringRef SectionName = getName();
+  if (SectionName.empty())
+    OS << "SECTION @,";
+  else
+    OS << "SECTION \"" << SectionName << "\",";
   // This is just as simple as asking the section data for its string and
   // printing it.
   SmallString<40> SecStr;
