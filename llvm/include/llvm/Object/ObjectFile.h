@@ -43,6 +43,7 @@ class SectionRef;
 class SymbolRef;
 class symbol_iterator;
 class WasmObjectFile;
+class RGB9ObjectFile;
 
 using section_iterator = content_iterator<SectionRef>;
 
@@ -377,6 +378,9 @@ public:
 
   static Expected<std::unique_ptr<WasmObjectFile>>
   createWasmObjectFile(MemoryBufferRef Object);
+
+  static Expected<std::unique_ptr<RGB9ObjectFile>>
+  createRGB9ObjectFile(MemoryBufferRef Object);
 };
 
 // Inline function definitions.

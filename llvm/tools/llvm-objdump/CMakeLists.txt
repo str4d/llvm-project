@@ -19,6 +19,7 @@ add_llvm_tool(llvm-objdump
   COFFDump.cpp
   ELFDump.cpp
   MachODump.cpp
+  RGB9Dump.cpp
   WasmDump.cpp
   XCOFFDump.cpp
   )

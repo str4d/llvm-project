@@ -17,6 +17,7 @@ add_llvm_component_library(LLVMObject
   ModuleSymbolTable.cpp
   Object.cpp
   ObjectFile.cpp
+  RGB9ObjectFile.cpp
   RecordStreamer.cpp
   RelocationResolver.cpp
   SymbolicFile.cpp

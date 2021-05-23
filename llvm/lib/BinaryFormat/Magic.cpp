@@ -71,6 +71,11 @@ file_magic llvm::identify_magic(StringRef Magic) {
       return file_magic::xcoff_object_64;
     break;
 
+  case 0x52: // RGB9
+    if (startswith(Magic, "RGB9"))
+      return file_magic::rgb9_object;
+    break;
+
   case 0xDE: // 0x0B17C0DE = BC wraper
     if (startswith(Magic, "\xDE\xC0\x17\x0B"))
       return file_magic::bitcode;

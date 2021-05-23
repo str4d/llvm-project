@@ -19,6 +19,7 @@
 #include "COFFDump.h"
 #include "ELFDump.h"
 #include "MachODump.h"
+#include "RGB9Dump.h"
 #include "WasmDump.h"
 #include "XCOFFDump.h"
 #include "llvm/ADT/IndexedMap.h"
@@ -53,6 +54,7 @@
 #include "llvm/Object/MachO.h"
 #include "llvm/Object/MachOUniversal.h"
 #include "llvm/Object/ObjectFile.h"
+#include "llvm/Object/RGB9ObjectFile.h"
 #include "llvm/Object/Wasm.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/CommandLine.h"
@@ -548,6 +550,8 @@ static Error getRelocationValueString(const RelocationRef &Rel,
     return getMachORelocationValueString(MachO, Rel, Result);
   if (auto *XCOFF = dyn_cast<XCOFFObjectFile>(Obj))
     return getXCOFFRelocationValueString(XCOFF, Rel, Result);
+  if (auto *RGB9 = dyn_cast<RGB9ObjectFile>(Obj))
+    return getRGB9RelocationValueString(RGB9, Rel, Result);
   llvm_unreachable("unknown object file format");
 }
 
@@ -2241,8 +2245,10 @@ static void disassembleObject(const ObjectFile *Obj, bool InlineRelocs) {
 }
 
 void objdump::printRelocations(const ObjectFile *Obj) {
-  StringRef Fmt = Obj->getBytesInAddress() > 4 ? "%016" PRIx64 :
-                                                 "%08" PRIx64;
+  uint8_t BytesInAddress = Obj->getBytesInAddress();
+  StringRef Fmt = BytesInAddress > 4 ? "%016" PRIx64 :
+                  BytesInAddress > 2 ? "%08" PRIx64 :
+                                       "%04" PRIx64 "  ";
   // Regular objdump doesn't print relocations in non-relocatable object
   // files.
   if (!Obj->isRelocatableObject())
@@ -2268,7 +2274,7 @@ void objdump::printRelocations(const ObjectFile *Obj) {
   for (std::pair<SectionRef, std::vector<SectionRef>> &P : SecToRelSec) {
     StringRef SecName = unwrapOrError(P.first.getName(), Obj->getFileName());
     outs() << "RELOCATION RECORDS FOR [" << SecName << "]:\n";
-    uint32_t OffsetPadding = (Obj->getBytesInAddress() > 4 ? 16 : 8);
+    uint32_t OffsetPadding = (BytesInAddress > 4 ? 16 : BytesInAddress > 2 ? 8 : 6);
     uint32_t TypePadding = 24;
     outs() << left_justify("OFFSET", OffsetPadding) << " "
            << left_justify("TYPE", TypePadding) << " "
@@ -2310,7 +2316,10 @@ void objdump::printDynamicRelocations(const ObjectFile *Obj) {
     return;
 
   outs() << "DYNAMIC RELOCATION RECORDS\n";
-  StringRef Fmt = Obj->getBytesInAddress() > 4 ? "%016" PRIx64 : "%08" PRIx64;
+  uint8_t BytesInAddress = Obj->getBytesInAddress();
+  StringRef Fmt = BytesInAddress > 4 ? "%016" PRIx64 :
+                  BytesInAddress > 2 ? "%08" PRIx64 :
+                                       "%04" PRIx64;
   for (const SectionRef &Section : DynRelSec)
     for (const RelocationRef &Reloc : Section.relocations()) {
       uint64_t Address = Reloc.getOffset();
@@ -2545,7 +2554,10 @@ void objdump::printSymbol(const ObjectFile *O, const SymbolRef &Symbol,
   else if (Type == SymbolRef::ST_Data)
     FileFunc = 'O';
 
-  const char *Fmt = O->getBytesInAddress() > 4 ? "%016" PRIx64 : "%08" PRIx64;
+  uint8_t BytesInAddress = O->getBytesInAddress();
+  const char *Fmt = BytesInAddress > 4 ? "%016" PRIx64 :
+                    BytesInAddress > 2 ? "%08" PRIx64 :
+                                         "%04" PRIx64;
 
   outs() << format(Fmt, Address) << " "
          << GlobLoc            // Local -> 'l', Global -> 'g', Neither -> ' '
@@ -2717,18 +2729,23 @@ static void printPrivateFileHeaders(const ObjectFile *O, bool OnlyFirst) {
       printMachOLoadCommands(O);
     return;
   }
+  if (O->isRGB9())
+    return printRGB9FileHeader(O);
   reportError(O->getFileName(), "Invalid/Unsupported object file format");
 }
 
 static void printFileHeaders(const ObjectFile *O) {
-  if (!O->isELF() && !O->isCOFF())
+  if (!O->isELF() && !O->isCOFF() && !O->isRGB9())
     reportError(O->getFileName(), "Invalid/Unsupported object file format");
 
   Triple::ArchType AT = O->getArch();
   outs() << "architecture: " << Triple::getArchTypeName(AT) << "\n";
   uint64_t Address = unwrapOrError(O->getStartAddress(), O->getFileName());
 
-  StringRef Fmt = O->getBytesInAddress() > 4 ? "%016" PRIx64 : "%08" PRIx64;
+  uint8_t BytesInAddress = O->getBytesInAddress();
+  StringRef Fmt = BytesInAddress > 4 ? "%016" PRIx64 :
+                  BytesInAddress > 2 ? "%08" PRIx64 :
+                                       "%04" PRIx64;
   outs() << "start address: "
          << "0x" << format(Fmt.data(), Address) << "\n\n";
 }

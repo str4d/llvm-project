@@ -17,6 +17,7 @@
 #include "llvm/Object/COFF.h"
 #include "llvm/Object/Error.h"
 #include "llvm/Object/MachO.h"
+#include "llvm/Object/RGB9ObjectFile.h"
 #include "llvm/Object/Wasm.h"
 #include "llvm/Support/Error.h"
 #include "llvm/Support/ErrorHandling.h"
@@ -178,6 +179,8 @@ ObjectFile::createObjectFile(MemoryBufferRef Object, file_magic Type,
     return createXCOFFObjectFile(Object, Binary::ID_XCOFF64);
   case file_magic::wasm_object:
     return createWasmObjectFile(Object);
+  case file_magic::rgb9_object:
+    return createRGB9ObjectFile(Object);
   }
   llvm_unreachable("Unexpected Object File Type");
 }

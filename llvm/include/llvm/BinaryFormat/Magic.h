@@ -48,6 +48,7 @@ struct file_magic {
     xcoff_object_32,     ///< 32-bit XCOFF object file
     xcoff_object_64,     ///< 64-bit XCOFF object file
     wasm_object,         ///< WebAssembly Object file
+    rgb9_object,         ///< RGB9 Object file
     pdb,                 ///< Windows PDB debug info file
     tapi_file,           ///< Text-based Dynamic Library Stub file
   };

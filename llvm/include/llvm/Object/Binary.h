@@ -69,6 +69,8 @@ protected:
 
     ID_Wasm,
 
+    ID_RGB9,
+
     ID_EndObjects
   };
 
@@ -132,6 +134,8 @@ public:
   bool isXCOFF() const { return TypeID == ID_XCOFF32 || TypeID == ID_XCOFF64; }
 
   bool isWasm() const { return TypeID == ID_Wasm; }
+
+  bool isRGB9() const { return TypeID == ID_RGB9; }
 
   bool isCOFFImportFile() const {
     return TypeID == ID_COFFImportFile;

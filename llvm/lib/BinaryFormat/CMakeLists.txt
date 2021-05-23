@@ -8,6 +8,7 @@ add_llvm_component_library(LLVMBinaryFormat
   MsgPackDocumentYAML.cpp
   MsgPackReader.cpp
   MsgPackWriter.cpp
+  RGB9.cpp
   Wasm.cpp
   XCOFF.cpp
 
