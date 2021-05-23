@@ -55,6 +55,9 @@ MCAsmInfo::MCAsmInfo() {
   Data16bitsDirective = "\t.short\t";
   Data32bitsDirective = "\t.long\t";
   Data64bitsDirective = "\t.quad\t";
+  P2Align8bitsDirective = "\t.p2align\t";
+  P2Align16bitsDirective = ".p2alignw ";
+  P2Align32bitsDirective = ".p2alignl ";
   GlobalDirective = "\t.globl\t";
   WeakDirective = "\t.weak\t";
   if (DwarfExtendedLoc != Default)

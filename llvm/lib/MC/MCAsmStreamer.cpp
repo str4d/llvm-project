@@ -1309,13 +1309,13 @@ void MCAsmStreamer::emitValueToAlignment(unsigned ByteAlignment, int64_t Value,
     default:
       llvm_unreachable("Invalid size for machine code value!");
     case 1:
-      OS << "\t.p2align\t";
+      OS << MAI->getP2Align8bitsDirective();
       break;
     case 2:
-      OS << ".p2alignw ";
+      OS << MAI->getP2Align16bitsDirective();
       break;
     case 4:
-      OS << ".p2alignl ";
+      OS << MAI->getP2Align32bitsDirective();
       break;
     case 8:
       llvm_unreachable("Unsupported alignment size!");

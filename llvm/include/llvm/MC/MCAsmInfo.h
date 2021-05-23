@@ -272,6 +272,12 @@ protected:
 
   //===--- Alignment Information ----------------------------------------===//
 
+  /// These directives are used to emit round ups to a power-of-2 alignment
+  /// boundary.  Defaults to "\t.p2align\t", ".p2alignw ", ".p2alignl "
+  const char *P2Align8bitsDirective;
+  const char *P2Align16bitsDirective;
+  const char *P2Align32bitsDirective;
+
   /// If this is true (the default) then the asmprinter emits ".align N"
   /// directives, where N is the number of bytes to align to.  Otherwise, it
   /// emits ".align log2(N)", e.g. 3 to align to an 8 byte boundary.  Defaults
@@ -604,6 +610,9 @@ public:
   AsmCharLiteralSyntax characterLiteralSyntax() const {
     return CharacterLiteralSyntax;
   }
+  const char *getP2Align8bitsDirective() const { return P2Align8bitsDirective; }
+  const char *getP2Align16bitsDirective() const { return P2Align16bitsDirective; }
+  const char *getP2Align32bitsDirective() const { return P2Align32bitsDirective; }
   bool getAlignmentIsInBytes() const { return AlignmentIsInBytes; }
   unsigned getTextAlignFillValue() const { return TextAlignFillValue; }
   const char *getGlobalDirective() const { return GlobalDirective; }
