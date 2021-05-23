@@ -150,6 +150,9 @@ protected:
   /// a plain private symbol should be used.  Defaults to "".
   StringRef LinkerPrivateGlobalPrefix;
 
+  /// Octal prefix. Defaults to "0".
+  StringRef OctalPrefix;
+
   /// Hexadecimal prefix. Defaults to "0x".
   StringRef HexadecimalPrefix;
 
@@ -558,6 +561,7 @@ public:
   bool needsLocalForSize() const { return NeedsLocalForSize; }
   StringRef getPrivateGlobalPrefix() const { return PrivateGlobalPrefix; }
   StringRef getPrivateLabelPrefix() const { return PrivateLabelPrefix; }
+  StringRef getOctalPrefix() const { return OctalPrefix; }
   StringRef getHexadecimalPrefix() const { return HexadecimalPrefix; }
 
   bool hasLinkerPrivateGlobalPrefix() const {

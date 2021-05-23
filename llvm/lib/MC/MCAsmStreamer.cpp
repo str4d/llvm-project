@@ -982,10 +982,11 @@ void MCAsmStreamer::emitTBSSSymbol(MCSection *Section, MCSymbol *Symbol,
 static inline char toOctal(int X) { return (X&7)+'0'; }
 
 static void PrintByteList(StringRef Data, raw_ostream &OS,
+                          StringRef OctP,
                           MCAsmInfo::AsmCharLiteralSyntax ACLS) {
   assert(!Data.empty() && "Cannot generate an empty list.");
-  const auto printCharacterInOctal = [&OS](unsigned char C) {
-    OS << '0';
+  const auto printCharacterInOctal = [&OS, &OctP](unsigned char C) {
+    OS << OctP;
     OS << toOctal(C >> 6);
     OS << toOctal(C >> 3);
     OS << toOctal(C >> 0);
@@ -1070,7 +1071,7 @@ void MCAsmStreamer::emitBytes(StringRef Data) {
       OS << MAI->getAsciiDirective();
     } else if (MAI->getByteListDirective()) {
       OS << MAI->getByteListDirective();
-      PrintByteList(Data, OS, MAI->characterLiteralSyntax());
+      PrintByteList(Data, OS, MAI->getOctalPrefix(), MAI->characterLiteralSyntax());
       EmitEOL();
       return true;
     } else {

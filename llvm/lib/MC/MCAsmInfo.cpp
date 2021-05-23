@@ -41,6 +41,7 @@ MCAsmInfo::MCAsmInfo() {
   PrivateGlobalPrefix = "L";
   PrivateLabelPrefix = PrivateGlobalPrefix;
   LinkerPrivateGlobalPrefix = "";
+  OctalPrefix = "0";
   HexadecimalPrefix = "0x";
   InlineAsmStart = "APP";
   InlineAsmEnd = "NO_APP";
