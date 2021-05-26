@@ -28,6 +28,7 @@
 #include "llvm/Object/MachO.h"
 #include "llvm/Object/MachOUniversal.h"
 #include "llvm/Object/ObjectFile.h"
+#include "llvm/Object/RGB9ObjectFile.h"
 #include "llvm/Object/TapiFile.h"
 #include "llvm/Object/TapiUniversal.h"
 #include "llvm/Object/Wasm.h"
@@ -350,6 +351,8 @@ static char isSymbolList64Bit(SymbolicFile &Obj) {
   if (isa<COFFObjectFile>(Obj) || isa<COFFImportFile>(Obj))
     return false;
   if (isa<WasmObjectFile>(Obj))
+    return false;
+  if (isa<RGB9ObjectFile>(Obj))
     return false;
   if (TapiFile *Tapi = dyn_cast<TapiFile>(&Obj))
     return Tapi->is64Bit();
@@ -1081,6 +1084,13 @@ static char getSymbolNMTypeChar(WasmObjectFile &Obj, basic_symbol_iterator I) {
   return 'd';
 }
 
+static char getSymbolNMTypeChar(RGB9ObjectFile &Obj, basic_symbol_iterator I) {
+  uint32_t Flags = cantFail(I->getFlags());
+  if (Flags & SymbolRef::SF_Const)
+    return 'r';
+  return 't';
+}
+
 static char getSymbolNMTypeChar(IRObjectFile &Obj, basic_symbol_iterator I) {
   uint32_t Flags = cantFail(I->getFlags());
   // FIXME: should we print 'b'? At the IR level we cannot be sure if this
@@ -1166,6 +1176,8 @@ static char getNMSectionTagAndName(SymbolicFile &Obj, basic_symbol_iterator I,
     Ret = getSymbolNMTypeChar(*MachO, I);
   else if (WasmObjectFile *Wasm = dyn_cast<WasmObjectFile>(&Obj))
     Ret = getSymbolNMTypeChar(*Wasm, I);
+  else if (RGB9ObjectFile *RGB9 = dyn_cast<RGB9ObjectFile>(&Obj))
+    Ret = getSymbolNMTypeChar(*RGB9, I);
   else if (TapiFile *Tapi = dyn_cast<TapiFile>(&Obj))
     Ret = getSymbolNMTypeChar(*Tapi, I);
   else if (ELFObjectFileBase *ELF = dyn_cast<ELFObjectFileBase>(&Obj)) {
