@@ -39,6 +39,7 @@ add_llvm_component_library(LLVMMC
   MCSectionCOFF.cpp
   MCSectionELF.cpp
   MCSectionMachO.cpp
+  MCSectionRGB9.cpp
   MCSectionWasm.cpp
   MCSectionXCOFF.cpp
   MCStreamer.cpp

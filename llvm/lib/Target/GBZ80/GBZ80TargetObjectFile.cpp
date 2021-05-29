@@ -13,47 +13,11 @@
 #include "llvm/IR/GlobalValue.h"
 #include "llvm/IR/Mangler.h"
 #include "llvm/MC/MCContext.h"
-#include "llvm/MC/MCSectionELF.h"
-#include "llvm/Support/Format.h"
-#include "llvm/Support/MathExtras.h"
+#include "llvm/MC/MCSectionRGB9.h"
 
 #include "GBZ80.h"
 
 namespace llvm {
-
-void GBZ80SectionData::getAsString(SmallVectorImpl<char> &Str) const {
-  raw_svector_ostream O(Str);
-  switch (Type) {
-  case ST_ROM0:  O << "ROM0"; break;
-  case ST_ROMX:  O << "ROMX"; break;
-  case ST_VRAM:  O << "VRAM"; break;
-  case ST_SRAM:  O << "SRAM"; break;
-  case ST_WRAM0: O << "WRAM0"; break;
-  case ST_WRAMX: O << "WRAMX"; break;
-  case ST_OAM:   O << "OAM"; break;
-  case ST_HRAM:  O << "HRAM"; break;
-  default: llvm_unreachable("Tried to print an invalid section!");
-  }
-  if (hasAddress())
-    O << "[$" << format("%04x", Address) << "]";
-  if (hasBank())
-    O << ",BANK[" << Bank << "]";
-  // Round alignment up to the nearest log2. This will guarantee at least that
-  // alignment. I don't think non-power-of-two alignments are legal anyway.
-  if (hasAlignment())
-    O << ",ALIGN[" << Log2_32_Ceil(Alignment) << "]";
-}
-
-bool GBZ80SectionData::get(StringRef Specifier, GBZ80SectionData &Data) {
-  // Set defaults.
-  Data.Type = ST_NONE;
-  Data.Address = 0;
-  Data.Bank = ~0U;
-  Data.Alignment = 1;
-
-  // TODO: I guess this isn't needed just yet.
-  return false;
-}
 
 void GBZ80TargetObjectFile::Initialize(MCContext &Ctx, const TargetMachine &TM) {
   Base::Initialize(Ctx, TM);
@@ -68,15 +32,15 @@ void GBZ80TargetObjectFile::Initialize(MCContext &Ctx, const TargetMachine &TM) 
     GBSectionType::ST_ROM0, 0, ~0U, 1, nullptr);
 }
 
-MCSectionGBZ80 *GBZ80TargetObjectFile::getSection(SectionKind Kind,
+MCSectionRGB9 *GBZ80TargetObjectFile::getSection(SectionKind Kind,
     StringRef N, GBSectionType T, uint16_t A, unsigned B, unsigned Align,
     const GlobalObject *GO) const {
   assert((!N.empty() || GO) && "Named unique section?");
-  GBZ80SectionData Data(T, A, B, Align, GO);
+  RGB9SectionData Data(T, A, B, Align, GO);
   if (Sections.count(Data))
     return Sections[Data];
   // Not allocated with an allocator...
-  MCSectionGBZ80 *Section = new MCSectionGBZ80(N, Kind, Data, nullptr);
+  MCSectionRGB9 *Section = new MCSectionRGB9(N, Kind, Data, nullptr);
   Sections[Data] = Section;
   return Section;
 }
@@ -127,28 +91,6 @@ GBZ80TargetObjectFile::getExplicitSectionGlobal(const GlobalObject * GO,
   // XXX: Is this aware of the subtarget? Could this verify the section?
   llvm_unreachable("getExplicitSectionGlobal not yet implemented!");
 }
-void MCSectionGBZ80::PrintSwitchToSection(const MCAsmInfo & MAI,
-  const Triple & T, raw_ostream & OS, const MCExpr * Subsection) const {
-  // XXX: this will break if sectionname has quotes in it.
-  StringRef SectionName = getName();
-  if (SectionName.empty())
-    OS << "SECTION @,";
-  else
-    OS << "SECTION \"" << SectionName << "\",";
-  // This is just as simple as asking the section data for its string and
-  // printing it.
-  SmallString<40> SecStr;
-  Data.getAsString(SecStr);
-  OS << SecStr << '\n';
-}
-bool MCSectionGBZ80::UseCodeAlign() const {
-  // RGBDS has support for alignment.
-  return false;
-}
-bool MCSectionGBZ80::isVirtualSection() const {
-  // I don't believe RGBDS has any of these.
-  // XXX: We might want a fake section I guess? ST_NONE?
-  return false;
-}
+
 } // end of namespace llvm
 
