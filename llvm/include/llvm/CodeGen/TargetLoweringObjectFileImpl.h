@@ -15,7 +15,10 @@
 #define LLVM_CODEGEN_TARGETLOWERINGOBJECTFILEIMPL_H
 
 #include "llvm/BinaryFormat/XCOFF.h"
+#include "llvm/MC/MCSectionRGB9.h"
 #include "llvm/Target/TargetLoweringObjectFile.h"
+
+#include <map>
 
 namespace llvm {
 
@@ -273,6 +276,37 @@ public:
 
   MCSymbol *getFunctionEntryPointSymbol(const GlobalValue *Func,
                                         const TargetMachine &TM) const override;
+};
+
+class TargetLoweringObjectFileRGB9 : public TargetLoweringObjectFile {
+  // Making this mutable is disgusting, but I want to avoid having to mess
+  // around in MCContext and friends.
+  // TODO[str4d]: Does this need to change now that MCSection stores the section name?
+  mutable std::map<RGB9SectionData, MCSectionRGB9 *> Sections;
+
+public:
+  TargetLoweringObjectFileRGB9() = default;
+  ~TargetLoweringObjectFileRGB9() override = default;
+
+  void Initialize(MCContext &Ctx, const TargetMachine &TM) override;
+
+  /// Given a mergeable constant with the specified size and relocation
+  /// information, return a section that it should be placed in.
+  MCSection *getSectionForConstant(const DataLayout &DL, SectionKind Kind,
+                                   const Constant *C,
+                                   Align &Alignment) const override;
+
+  MCSection *getExplicitSectionGlobal(const GlobalObject *GO, SectionKind Kind,
+                                      const TargetMachine &TM) const override;
+
+  MCSection *SelectSectionForGlobal(const GlobalObject *GO, SectionKind Kind,
+                                    const TargetMachine &TM) const override;
+
+private:
+  // Not actually const.
+  MCSectionRGB9 *getSection(SectionKind Kind, StringRef N, GBSectionType T,
+                            uint16_t A, unsigned B,
+                            unsigned Align, const GlobalObject *GO) const;
 };
 
 } // end namespace llvm
