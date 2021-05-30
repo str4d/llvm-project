@@ -19,6 +19,7 @@
 #include "llvm/ADT/Twine.h"
 #include "llvm/BinaryFormat/Dwarf.h"
 #include "llvm/BinaryFormat/ELF.h"
+#include "llvm/BinaryFormat/RGB9.h"
 #include "llvm/BinaryFormat/XCOFF.h"
 #include "llvm/MC/MCAsmMacro.h"
 #include "llvm/MC/MCDwarf.h"
@@ -44,6 +45,7 @@
 namespace llvm {
 
   class CodeViewContext;
+  class GlobalObject;
   class MCAsmInfo;
   class MCLabel;
   class MCObjectFileInfo;
@@ -52,6 +54,7 @@ namespace llvm {
   class MCSectionCOFF;
   class MCSectionELF;
   class MCSectionMachO;
+  class MCSectionRGB9;
   class MCSectionWasm;
   class MCSectionXCOFF;
   class MCStreamer;
@@ -98,6 +101,7 @@ namespace llvm {
     SpecificBumpPtrAllocator<MCSectionMachO> MachOAllocator;
     SpecificBumpPtrAllocator<MCSectionWasm> WasmAllocator;
     SpecificBumpPtrAllocator<MCSectionXCOFF> XCOFFAllocator;
+    SpecificBumpPtrAllocator<MCSectionRGB9> RGB9Allocator;
     SpecificBumpPtrAllocator<MCInst> MCInstAllocator;
 
     /// Bindings of names to symbols.
@@ -288,6 +292,7 @@ namespace llvm {
     std::map<COFFSectionKey, MCSectionCOFF *> COFFUniquingMap;
     std::map<WasmSectionKey, MCSectionWasm *> WasmUniquingMap;
     std::map<XCOFFSectionKey, MCSectionXCOFF *> XCOFFUniquingMap;
+    StringMap<MCSectionRGB9 *> RGB9UniquingMap;
     StringMap<bool> RelSecNames;
 
     SpecificBumpPtrAllocator<MCSubtargetInfo> MCSubtargetAllocator;
@@ -575,6 +580,11 @@ namespace llvm {
                                     XCOFF::SymbolType CSectType, SectionKind K,
                                     bool MultiSymbolsAllowed = false,
                                     const char *BeginSymName = nullptr);
+
+    MCSectionRGB9 *getRGB9Section(const Twine &Section, SectionKind K,
+                                  RGB9::SectionType T, uint16_t A, unsigned B,
+                                  const GlobalObject *GO,
+                                  const char *BeginSymName = nullptr);
 
     // Create and save a copy of STI and return a reference to the copy.
     MCSubtargetInfo &getSubtargetCopy(const MCSubtargetInfo &STI);

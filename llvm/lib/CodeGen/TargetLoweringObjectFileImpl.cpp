@@ -2358,13 +2358,13 @@ MCSection *TargetLoweringObjectFileXCOFF::getSectionForTOCEntry(
 void TargetLoweringObjectFileRGB9::Initialize(MCContext &Ctx, const TargetMachine &TM) {
   TargetLoweringObjectFile::Initialize(Ctx, TM);
   // Make some fake generic sections.
-  TextSection = getSection(SectionKind::getText(), StringRef(".text"),
+  TextSection = Ctx.getRGB9Section(StringRef(".text"), SectionKind::getText(),
       RGB9::SEC_ROM0, 0, ~0U, nullptr);
-  DataSection = getSection(SectionKind::getText(), StringRef(".data"),
+  DataSection = Ctx.getRGB9Section(StringRef(".data"), SectionKind::getText(),
       RGB9::SEC_WRAM0, 0, ~0U, nullptr);
-  BSSSection = getSection(SectionKind::getText(), StringRef(".bss"),
+  BSSSection = Ctx.getRGB9Section(StringRef(".bss"), SectionKind::getText(),
       RGB9::SEC_WRAM0, 0, ~0U, nullptr);
-  ReadOnlySection = getSection(SectionKind::getText(), StringRef(".readonly"),
+  ReadOnlySection = Ctx.getRGB9Section(StringRef(".readonly"), SectionKind::getText(),
       RGB9::SEC_ROM0, 0, ~0U, nullptr);
 }
 
@@ -2376,7 +2376,7 @@ MCSection *TargetLoweringObjectFileRGB9::getSectionForConstant(
   // XXX: unless we want to specify deduced constant sections with attrs?
   // XXX: We can't specify a symbol for this unique section. is this a problem?
   assert(Kind.isReadOnly() && "Writeable constant?");
-  auto Section = getSection(Kind, StringRef(), RGB9::SEC_ROM0, 0, ~0U, nullptr);
+  auto Section = getContext().getRGB9Section(StringRef(), Kind, RGB9::SEC_ROM0, 0, ~0U, nullptr);
   Section->setAlignment(Alignment);
   return Section;
 }
@@ -2413,19 +2413,7 @@ MCSection *TargetLoweringObjectFileRGB9::SelectSectionForGlobal(
     llvm_unreachable("SelectSectionForGlobal not yet implemented for this type!");
   }
 
-  return getSection(Kind, (Twine(GO->getParent()->getName()) + "_" + GO->getName()).str(),
-                    Type, 0, ~0U, GO);
-}
-
-MCSectionRGB9 *TargetLoweringObjectFileRGB9::getSection(SectionKind Kind,
-    StringRef N, RGB9::SectionType T, uint16_t A, unsigned B,
-    const GlobalObject *GO) const {
-  assert((!N.empty() || GO) && "Named unique section?");
-  RGB9SectionData Data(T, A, B, GO);
-  if (Sections.count(Data))
-    return Sections[Data];
-  // Not allocated with an allocator...
-  MCSectionRGB9 *Section = new MCSectionRGB9(N, Kind, Data, nullptr);
-  Sections[Data] = Section;
-  return Section;
+  return getContext().getRGB9Section(
+      (Twine(GO->getParent()->getName()) + "_" + GO->getName()).str(),
+      Kind, Type, 0, ~0U, GO);
 }

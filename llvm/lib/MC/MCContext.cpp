@@ -26,6 +26,7 @@
 #include "llvm/MC/MCSectionCOFF.h"
 #include "llvm/MC/MCSectionELF.h"
 #include "llvm/MC/MCSectionMachO.h"
+#include "llvm/MC/MCSectionRGB9.h"
 #include "llvm/MC/MCSectionWasm.h"
 #include "llvm/MC/MCSectionXCOFF.h"
 #include "llvm/MC/MCStreamer.h"
@@ -698,6 +699,41 @@ MCContext::getXCOFFSection(StringRef Section, XCOFF::StorageMappingClass SMC,
                      Begin, CachedName, MultiSymbolsAllowed);
   Entry.second = Result;
 
+  auto *F = new MCDataFragment();
+  Result->getFragmentList().insert(Result->begin(), F);
+  F->setParent(Result);
+
+  if (Begin)
+    Begin->setFragment(F);
+
+  return Result;
+}
+
+MCSectionRGB9 *MCContext::getRGB9Section(const Twine &Section, SectionKind Kind,
+                                         RGB9::SectionType T, uint16_t A, unsigned B,
+                                         const GlobalObject *GO,
+                                         const char *BeginSymName) {
+  // Do the lookup, if we have a hit, return it.
+  auto R = RGB9UniquingMap.try_emplace(Section.str());
+  if (!R.second)
+    return R.first->second;
+
+  // Otherwise, return a new section.
+  StringRef Name = R.first->first();
+  assert((!Name.empty() || GO) && "Named unique section?");
+
+  RGB9SectionData Data(T, A, B, GO);
+
+  // TODO[str4d]: Understand what this does.
+  MCSymbol *Begin = nullptr;
+  if (BeginSymName)
+    Begin = createTempSymbol(BeginSymName, false);
+
+  MCSectionRGB9 *Result = new (RGB9Allocator.Allocate())
+      MCSectionRGB9(Name, Kind, Data, Begin);
+  R.first->second = Result;
+
+  // TODO[str4d]: Understand what this does.
   auto *F = new MCDataFragment();
   Result->getFragmentList().insert(Result->begin(), F);
   F->setParent(Result);
