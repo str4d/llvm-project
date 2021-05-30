@@ -17,6 +17,7 @@
 #include "llvm/MC/MCSectionCOFF.h"
 #include "llvm/MC/MCSectionELF.h"
 #include "llvm/MC/MCSectionMachO.h"
+#include "llvm/MC/MCSectionRGB9.h"
 #include "llvm/MC/MCSectionWasm.h"
 #include "llvm/MC/MCSectionXCOFF.h"
 
@@ -912,6 +913,22 @@ void MCObjectFileInfo::initXCOFFMCObjectFileInfo(const Triple &T) {
   DwarfMacinfoSection = nullptr;  // SSUBTYP_DWMAC
 }
 
+void MCObjectFileInfo::initRGB9MCObjectFileInfo(const Triple &T) {
+  // Make some fake generic sections.
+  TextSection = Ctx->getRGB9Section(
+      ".text", SectionKind::getText(),
+      RGB9::SEC_ROM0, 0, ~0U, nullptr);
+  DataSection = Ctx->getRGB9Section(
+      ".data", SectionKind::getData(),
+      RGB9::SEC_WRAM0, 0, ~0U, nullptr);
+  BSSSection = Ctx->getRGB9Section(
+      ".bss", SectionKind::getBSS(),
+      RGB9::SEC_WRAM0, 0, ~0U, nullptr);
+  ReadOnlySection = Ctx->getRGB9Section(
+      ".readonly", SectionKind::getReadOnly(),
+      RGB9::SEC_ROM0, 0, ~0U, nullptr);
+}
+
 void MCObjectFileInfo::InitMCObjectFileInfo(const Triple &TheTriple, bool PIC,
                                             MCContext &ctx,
                                             bool LargeCodeModel) {
@@ -965,6 +982,10 @@ void MCObjectFileInfo::InitMCObjectFileInfo(const Triple &TheTriple, bool PIC,
     Env = IsXCOFF;
     initXCOFFMCObjectFileInfo(TT);
     break;
+  case Triple::RGB9:
+    Env = IsRGB9;
+    initRGB9MCObjectFileInfo(TT);
+    break;
   case Triple::UnknownObjectFormat:
     report_fatal_error("Cannot initialize MC for unknown object file format.");
     break;
@@ -984,6 +1005,7 @@ MCSection *MCObjectFileInfo::getDwarfComdatSection(const char *Name,
   case Triple::COFF:
   case Triple::GOFF:
   case Triple::XCOFF:
+  case Triple::RGB9:
   case Triple::UnknownObjectFormat:
     report_fatal_error("Cannot get DWARF comdat section for this object file "
                        "format: not implemented.");

@@ -2357,15 +2357,6 @@ MCSection *TargetLoweringObjectFileXCOFF::getSectionForTOCEntry(
 
 void TargetLoweringObjectFileRGB9::Initialize(MCContext &Ctx, const TargetMachine &TM) {
   TargetLoweringObjectFile::Initialize(Ctx, TM);
-  // Make some fake generic sections.
-  TextSection = Ctx.getRGB9Section(StringRef(".text"), SectionKind::getText(),
-      RGB9::SEC_ROM0, 0, ~0U, nullptr);
-  DataSection = Ctx.getRGB9Section(StringRef(".data"), SectionKind::getText(),
-      RGB9::SEC_WRAM0, 0, ~0U, nullptr);
-  BSSSection = Ctx.getRGB9Section(StringRef(".bss"), SectionKind::getText(),
-      RGB9::SEC_WRAM0, 0, ~0U, nullptr);
-  ReadOnlySection = Ctx.getRGB9Section(StringRef(".readonly"), SectionKind::getText(),
-      RGB9::SEC_ROM0, 0, ~0U, nullptr);
 }
 
 MCSection *TargetLoweringObjectFileRGB9::getSectionForConstant(

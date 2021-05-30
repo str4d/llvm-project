@@ -736,6 +736,10 @@ AsmParser::AsmParser(SourceMgr &SM, MCContext &Ctx, MCStreamer &Out,
     report_fatal_error(
         "Need to implement createXCOFFAsmParser for XCOFF format.");
     break;
+  case MCObjectFileInfo::IsRGB9:
+    report_fatal_error(
+        "Need to implement createRGB9AsmParser for RGB9 format.");
+    break;
   }
 
   PlatformParser->Initialize(*this);
