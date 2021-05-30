@@ -15,35 +15,20 @@ using namespace llvm;
 void RGB9SectionData::getAsString(SmallVectorImpl<char> &Str) const {
   raw_svector_ostream O(Str);
   switch (Type) {
-  case ST_ROM0:  O << "ROM0"; break;
-  case ST_ROMX:  O << "ROMX"; break;
-  case ST_VRAM:  O << "VRAM"; break;
-  case ST_SRAM:  O << "SRAM"; break;
-  case ST_WRAM0: O << "WRAM0"; break;
-  case ST_WRAMX: O << "WRAMX"; break;
-  case ST_OAM:   O << "OAM"; break;
-  case ST_HRAM:  O << "HRAM"; break;
+  case RGB9::SEC_ROM0:  O << "ROM0"; break;
+  case RGB9::SEC_ROMX:  O << "ROMX"; break;
+  case RGB9::SEC_VRAM:  O << "VRAM"; break;
+  case RGB9::SEC_SRAM:  O << "SRAM"; break;
+  case RGB9::SEC_WRAM0: O << "WRAM0"; break;
+  case RGB9::SEC_WRAMX: O << "WRAMX"; break;
+  case RGB9::SEC_OAM:   O << "OAM"; break;
+  case RGB9::SEC_HRAM:  O << "HRAM"; break;
   default: llvm_unreachable("Tried to print an invalid section!");
   }
   if (hasAddress())
     O << "[$" << format("%04x", Address) << "]";
   if (hasBank())
     O << ",BANK[" << Bank << "]";
-  // Round alignment up to the nearest log2. This will guarantee at least that
-  // alignment. I don't think non-power-of-two alignments are legal anyway.
-  if (hasAlignment())
-    O << ",ALIGN[" << Log2_32_Ceil(Alignment) << "]";
-}
-
-bool RGB9SectionData::get(StringRef Specifier, RGB9SectionData &Data) {
-  // Set defaults.
-  Data.Type = ST_NONE;
-  Data.Address = 0;
-  Data.Bank = ~0U;
-  Data.Alignment = 1;
-
-  // TODO: I guess this isn't needed just yet.
-  return false;
 }
 
 void MCSectionRGB9::PrintSwitchToSection(const MCAsmInfo &MAI, const Triple &T,
@@ -55,11 +40,26 @@ void MCSectionRGB9::PrintSwitchToSection(const MCAsmInfo &MAI, const Triple &T,
     OS << "SECTION @,";
   else
     OS << "SECTION \"" << SectionName << "\",";
+
   // This is just as simple as asking the section data for its string and
   // printing it.
   SmallString<40> SecStr;
   Data.getAsString(SecStr);
-  OS << SecStr << '\n';
+  OS << SecStr;
+
+  auto Alignment = getAlignment();
+  if (Alignment > 1) {
+    auto align = Log2_32_Ceil(Alignment);
+    OS << ",ALIGN[" << align;
+    // getAlignment() currently always returns a power of 2, but for spec accuracy:
+    auto offset = Alignment % (1 << align);
+    if (offset > 0) {
+      OS << ", " << offset;
+    }
+    OS << "]";
+  }
+
+  OS << '\n';
 }
 
 bool MCSectionRGB9::UseCodeAlign() const {

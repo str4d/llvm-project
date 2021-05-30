@@ -2359,13 +2359,13 @@ void TargetLoweringObjectFileRGB9::Initialize(MCContext &Ctx, const TargetMachin
   TargetLoweringObjectFile::Initialize(Ctx, TM);
   // Make some fake generic sections.
   TextSection = getSection(SectionKind::getText(), StringRef(".text"),
-      GBSectionType::ST_ROM0, 0, ~0U, 1, nullptr);
+      RGB9::SEC_ROM0, 0, ~0U, nullptr);
   DataSection = getSection(SectionKind::getText(), StringRef(".data"),
-    GBSectionType::ST_WRAM0, 0, ~0U, 1, nullptr);
+      RGB9::SEC_WRAM0, 0, ~0U, nullptr);
   BSSSection = getSection(SectionKind::getText(), StringRef(".bss"),
-    GBSectionType::ST_WRAM0, 0, ~0U, 1, nullptr);
+      RGB9::SEC_WRAM0, 0, ~0U, nullptr);
   ReadOnlySection = getSection(SectionKind::getText(), StringRef(".readonly"),
-    GBSectionType::ST_ROM0, 0, ~0U, 1, nullptr);
+      RGB9::SEC_ROM0, 0, ~0U, nullptr);
 }
 
 MCSection *TargetLoweringObjectFileRGB9::getSectionForConstant(
@@ -2376,7 +2376,9 @@ MCSection *TargetLoweringObjectFileRGB9::getSectionForConstant(
   // XXX: unless we want to specify deduced constant sections with attrs?
   // XXX: We can't specify a symbol for this unique section. is this a problem?
   assert(Kind.isReadOnly() && "Writeable constant?");
-  return getSection(Kind, StringRef(), ST_ROM0, 0, ~0U, Alignment.value(), nullptr);
+  auto Section = getSection(Kind, StringRef(), RGB9::SEC_ROM0, 0, ~0U, nullptr);
+  Section->setAlignment(Alignment);
+  return Section;
 }
 
 MCSection *TargetLoweringObjectFileRGB9::getExplicitSectionGlobal(
@@ -2392,32 +2394,34 @@ MCSection *TargetLoweringObjectFileRGB9::SelectSectionForGlobal(
   // This only gets called for globals that don't have a 'section' attribute.
   // XXX: Could they have custom attributes though? Perhaps only makes sense
   // for constants.
-  GBSectionType Type;
+  RGB9::SectionType Type;
   // We need to enforce sections here.
   // Should this verify the section on the actual object?
   if (Kind.isText() || Kind.isReadOnly()) {
     // Code and constants. This goes in ROM0 or ROMX, always. It is an error to
     // put it in any other section. If no section is given, it goes in ROM0.
     // XXX: Make it ROM0 for now.
-    Type = ST_ROM0;
+    Type = RGB9::SEC_ROM0;
   } else if (Kind.isBSS() || Kind.isData()) {
     // This is writeable data.
     // Unsure how to handle this, since it needs to be inited.
     // Special section perhaps?
     // This can go in any section except for ROM0 and ROMX. Default is WRAM0.
     // XXX: WRAM0 for now.
-    Type = ST_WRAM0;
+    Type = RGB9::SEC_WRAM0;
+  } else {
+    llvm_unreachable("SelectSectionForGlobal not yet implemented for this type!");
   }
 
   return getSection(Kind, (Twine(GO->getParent()->getName()) + "_" + GO->getName()).str(),
-                    Type, 0, ~0U, GO->getAlignment(), GO);
+                    Type, 0, ~0U, GO);
 }
 
 MCSectionRGB9 *TargetLoweringObjectFileRGB9::getSection(SectionKind Kind,
-    StringRef N, GBSectionType T, uint16_t A, unsigned B, unsigned Align,
+    StringRef N, RGB9::SectionType T, uint16_t A, unsigned B,
     const GlobalObject *GO) const {
   assert((!N.empty() || GO) && "Named unique section?");
-  RGB9SectionData Data(T, A, B, Align, GO);
+  RGB9SectionData Data(T, A, B, GO);
   if (Sections.count(Data))
     return Sections[Data];
   // Not allocated with an allocator...

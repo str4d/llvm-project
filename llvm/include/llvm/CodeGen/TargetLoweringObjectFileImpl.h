@@ -304,9 +304,9 @@ public:
 
 private:
   // Not actually const.
-  MCSectionRGB9 *getSection(SectionKind Kind, StringRef N, GBSectionType T,
+  MCSectionRGB9 *getSection(SectionKind Kind, StringRef N, RGB9::SectionType T,
                             uint16_t A, unsigned B,
-                            unsigned Align, const GlobalObject *GO) const;
+                            const GlobalObject *GO) const;
 };
 
 } // end namespace llvm
