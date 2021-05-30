@@ -34,6 +34,8 @@ add_llvm_component_library(LLVMMC
   MCObjectWriter.cpp
   MCPseudoProbe.cpp
   MCRegisterInfo.cpp
+  MCRGB9ObjectTargetWriter.cpp
+  MCRGB9Streamer.cpp
   MCSchedule.cpp
   MCSection.cpp
   MCSectionCOFF.cpp
@@ -58,6 +60,7 @@ add_llvm_component_library(LLVMMC
   MCXCOFFObjectTargetWriter.cpp
   MCXCOFFStreamer.cpp
   MachObjectWriter.cpp
+  RGB9ObjectWriter.cpp
   StringTableBuilder.cpp
   SubtargetFeature.cpp
   WasmObjectWriter.cpp

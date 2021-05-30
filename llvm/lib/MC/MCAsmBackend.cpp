@@ -12,6 +12,7 @@
 #include "llvm/MC/MCELFObjectWriter.h"
 #include "llvm/MC/MCFixupKindInfo.h"
 #include "llvm/MC/MCMachObjectWriter.h"
+#include "llvm/MC/MCRGB9ObjectWriter.h"
 #include "llvm/MC/MCObjectWriter.h"
 #include "llvm/MC/MCWasmObjectWriter.h"
 #include "llvm/MC/MCWinCOFFObjectWriter.h"
@@ -45,6 +46,9 @@ MCAsmBackend::createObjectWriter(raw_pwrite_stream &OS) const {
   case Triple::XCOFF:
     return createXCOFFObjectWriter(
         cast<MCXCOFFObjectTargetWriter>(std::move(TW)), OS);
+  case Triple::RGB9:
+    return createRGB9ObjectWriter(
+        cast<MCRGB9ObjectTargetWriter>(std::move(TW)), OS);
   default:
     llvm_unreachable("unexpected object format");
   }

@@ -25,5 +25,8 @@ void GBZ80TargetStreamer::finish() {
 
 }
 
+GBZ80TargetRGB9Streamer::GBZ80TargetRGB9Streamer(MCStreamer &S)
+    : GBZ80TargetStreamer(S) {}
+
 } // end namespace llvm
 

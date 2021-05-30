@@ -22,8 +22,9 @@ class MCAsmBackend;
 class MCCodeEmitter;
 class MCContext;
 class MCInstrInfo;
-class MCObjectWriter;
+class MCObjectTargetWriter;
 class MCRegisterInfo;
+class MCSubtargetInfo;
 class MCTargetOptions;
 class StringRef;
 class Target;
@@ -38,12 +39,13 @@ MCCodeEmitter *createGBZ80MCCodeEmitter(const MCInstrInfo &MCII,
                                       MCContext &Ctx);
 
 /// Creates an assembly backend for GBZ80.
-MCAsmBackend *createGBZ80AsmBackend(const Target &T, const MCRegisterInfo &MRI,
-                                  const Triple &TT, StringRef CPU,
-                                  const llvm::MCTargetOptions &TO);
+MCAsmBackend *createGBZ80AsmBackend(const Target &T,
+                                    const MCSubtargetInfo &STI,
+                                    const MCRegisterInfo &MRI,
+                                    const MCTargetOptions &Options);
 
-/// Creates an ELF object writer for GBZ80.
-std::unique_ptr<MCObjectWriter> createGBZ80ELFObjectWriter(raw_pwrite_stream &OS, uint8_t OSABI);
+/// Creates an RGB9 object writer for GBZ80.
+std::unique_ptr<MCObjectTargetWriter> createGBZ80RGB9ObjectWriter();
 
 } // end namespace llvm
 

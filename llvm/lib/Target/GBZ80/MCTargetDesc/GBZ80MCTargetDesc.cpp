@@ -12,7 +12,6 @@
 
 #include "GBZ80InstPrinter.h"
 #include "GBZ80MCTargetDesc.h"
-#include "GBZ80ELFStreamer.h"
 #include "GBZ80MCAsmInfo.h"
 #include "GBZ80TargetStreamer.h"
 
@@ -73,7 +72,7 @@ static MCStreamer *createMCStreamer(const Triple &T, MCContext &Context,
 
 static MCTargetStreamer *
 createGBZ80ObjectTargetStreamer(MCStreamer &S, const MCSubtargetInfo &STI) {
-  return new GBZ80ELFStreamer(S, STI);
+  return new GBZ80TargetRGB9Streamer(S);
 }
 
 static MCTargetStreamer *createMCAsmTargetStreamer(MCStreamer &S,
@@ -107,15 +106,15 @@ extern "C" void LLVMInitializeGBZ80TargetMC() {
   // Register the ELF streamer
   //TargetRegistry::RegisterELFStreamer(getTheGBZ80Target(), createMCStreamer); // $HACK $MS: commented
 
-  // Register the obj target streamer.
-  //TargetRegistry::RegisterObjectTargetStreamer(getTheGBZ80Target(), // $HACK $MS: commented
-  //                                             createGBZ80ObjectTargetStreamer);
+  // Register the object target streamer.
+  TargetRegistry::RegisterObjectTargetStreamer(getTheGBZ80Target(),
+                                               createGBZ80ObjectTargetStreamer);
 
   // Register the asm target streamer.
   TargetRegistry::RegisterAsmTargetStreamer(getTheGBZ80Target(),
                                             createMCAsmTargetStreamer);
 
   // Register the asm backend (as little endian).
-  // TargetRegistry::RegisterMCAsmBackend(getTheGBZ80Target(), createGBZ80AsmBackend); // $HACK $MS: commented
+  TargetRegistry::RegisterMCAsmBackend(getTheGBZ80Target(), createGBZ80AsmBackend);
 }
 

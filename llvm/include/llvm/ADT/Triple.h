@@ -234,6 +234,7 @@ public:
     ELF,
     GOFF,
     MachO,
+    RGB9,
     Wasm,
     XCOFF,
   };

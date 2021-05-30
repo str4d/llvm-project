@@ -668,6 +668,7 @@ static StringRef getObjectFormatTypeName(Triple::ObjectFormatType Kind) {
   case Triple::ELF:   return "elf";
   case Triple::GOFF:  return "goff";
   case Triple::MachO: return "macho";
+  case Triple::RGB9:  return "rgb9";
   case Triple::Wasm:  return "wasm";
   case Triple::XCOFF: return "xcoff";
   }
@@ -699,7 +700,6 @@ static Triple::ObjectFormatType getDefaultFormat(const Triple &T) {
   case Triple::bpfeb:
   case Triple::bpfel:
   case Triple::csky:
-  case Triple::gbz80:
   case Triple::hexagon:
   case Triple::hsail64:
   case Triple::hsail:
@@ -748,6 +748,9 @@ static Triple::ObjectFormatType getDefaultFormat(const Triple &T) {
   case Triple::wasm32:
   case Triple::wasm64:
     return Triple::Wasm;
+
+  case Triple::gbz80:
+    return Triple::RGB9;
   }
   llvm_unreachable("unknown architecture");
 }

@@ -28,6 +28,12 @@ public:
   explicit GBZ80TargetAsmStreamer(MCStreamer &S);
 };
 
+/// A target streamer for RGB9 object output.
+class GBZ80TargetRGB9Streamer : public GBZ80TargetStreamer {
+public:
+  explicit GBZ80TargetRGB9Streamer(MCStreamer &S);
+};
+
 } // end namespace llvm
 
 #endif // LLVM_GBZ80_TARGET_STREAMER_H
