@@ -34,6 +34,7 @@
 #include "llvm/MC/MCSymbolCOFF.h"
 #include "llvm/MC/MCSymbolELF.h"
 #include "llvm/MC/MCSymbolMachO.h"
+#include "llvm/MC/MCSymbolRGB9.h"
 #include "llvm/MC/MCSymbolWasm.h"
 #include "llvm/MC/MCSymbolXCOFF.h"
 #include "llvm/MC/SectionKind.h"
@@ -189,6 +190,8 @@ MCSymbol *MCContext::createSymbolImpl(const StringMapEntry<bool> *Name,
       return new (Name, *this) MCSymbolELF(Name, IsTemporary);
     case MCObjectFileInfo::IsMachO:
       return new (Name, *this) MCSymbolMachO(Name, IsTemporary);
+    case MCObjectFileInfo::IsRGB9:
+      return new (Name, *this) MCSymbolRGB9(Name, IsTemporary);
     case MCObjectFileInfo::IsWasm:
       return new (Name, *this) MCSymbolWasm(Name, IsTemporary);
     case MCObjectFileInfo::IsXCOFF:

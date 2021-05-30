@@ -37,7 +37,7 @@ enum : uint8_t {
 };
 
 // Symbol types.
-enum : uint8_t {
+enum SymbolType : uint8_t {
   SYMBOL_LOCAL = 0,
   SYMBOL_IMPORT = 1,
   SYMBOL_EXPORT = 2,
